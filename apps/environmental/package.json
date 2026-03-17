@@ -23,7 +23,7 @@
   "author": "WebGeoDB Team",
   "license": "MIT",
   "dependencies": {
-    "@webgeodb/core": "latest"
+    "webgeodb-core": "latest"
   },
   "devDependencies": {
     "@types/node": "^20.0.0",

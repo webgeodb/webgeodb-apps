@@ -24,7 +24,7 @@
   "author": "WebGeoDB Team",
   "license": "MIT",
   "dependencies": {
-    "@webgeodb/core": "latest",
+    "webgeodb-core": "latest",
     "@webgeodb/drivers": "^1.0.0",
     "redis": "^4.6.0",
     "ws": "^8.14.0",

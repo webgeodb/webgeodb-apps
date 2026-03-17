@@ -23,7 +23,7 @@
   "license": "MIT",
   "dependencies": {
     "@turf/turf": "^6.5.0",
-    "@webgeodb/core": "latest",
+    "webgeodb-core": "latest",
     "chart.js": "^4.4.0",
     "leaflet": "^1.9.4"
   },
