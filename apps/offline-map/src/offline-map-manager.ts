@@ -4,7 +4,7 @@
  * 负责管理离线瓦片下载、存储和查询
  */
 
-import { WebGeoDB } from '@webgeodb/core';
+import { WebGeoDB } from 'webgeodb-core';
 import L from 'leaflet';
 
 export interface OfflineRegion {

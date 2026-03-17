@@ -4,7 +4,7 @@
  * 负责管理运动记录、数据计算和统计
  */
 
-import { WebGeoDB } from '@webgeodb/core';
+import { WebGeoDB } from 'webgeodb-core';
 import * as turf from '@turf/turf';
 
 export interface SportConfig {

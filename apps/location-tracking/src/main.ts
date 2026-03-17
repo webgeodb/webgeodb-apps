@@ -16,7 +16,7 @@
  * - 支持 Geolocation API 的浏览器
  */
 
-import { WebGeoDB } from '@webgeodb/core';
+import { WebGeoDB } from 'webgeodb-core';
 import { LocationTracker } from './location-tracker';
 import { MapManager } from './map-manager';
 import { UIService } from './ui-service';

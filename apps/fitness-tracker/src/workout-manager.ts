@@ -4,7 +4,7 @@
  * 负责管理运动记录的保存和查询
  */
 
-import { WebGeoDB } from '@webgeodb/core';
+import { WebGeoDB } from 'webgeodb-core';
 
 export interface Workout {
   id?: string;

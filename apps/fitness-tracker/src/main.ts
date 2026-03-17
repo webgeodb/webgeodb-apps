@@ -16,7 +16,7 @@
  * - 支持 Geolocation API 的浏览器
  */
 
-import { WebGeoDB } from '@webgeodb/core';
+import { WebGeoDB } from 'webgeodb-core';
 import { FitnessTracker } from './fitness-tracker';
 import { MapController } from './map-controller';
 import { ChartManager } from './chart-manager';

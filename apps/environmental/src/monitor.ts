@@ -5,7 +5,7 @@
  * environmental monitoring data with spatiotemporal capabilities.
  */
 
-import { WebGeoDB } from '@webgeodb/core';
+import { WebGeoDB } from 'webgeodb-core';
 
 // ============================================================================
 // Type Definitions

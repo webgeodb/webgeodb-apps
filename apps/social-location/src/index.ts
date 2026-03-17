@@ -1,4 +1,4 @@
-import { WebGeoDB } from '@webgeodb/core';
+import { WebGeoDB } from 'webgeodb-core';
 import { LocationService } from './services/location.service';
 import { PrivacyService } from './services/privacy.service';
 import { PlaceService } from './services/place.service';

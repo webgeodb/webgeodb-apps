@@ -1,4 +1,4 @@
-import { WebGeoDB } from '@webgeodb/core';
+import { WebGeoDB } from 'webgeodb-core';
 import { GeoPoint, Place, RecommendationRequest, UserPreference } from '../models/types';
 import { PlaceService } from './place.service';
 
@@ -77,8 +77,8 @@ export class RecommendationService {
 
     // Filter out existing friends
     const potentialFriends = nearbyUsers
-      .filter(u => !existingFriends.includes(u.userId))
-      .map(u => u.userId);
+      .filter((u: any) => !existingFriends.includes(u.userId))
+      .map((u: any) => u.userId);
 
     // Rank by similarity
     const ranked = await this.rankUsersBySimilarity(
@@ -182,7 +182,7 @@ export class RecommendationService {
         { $limit: 20 }
       ]).toArray();
 
-    return otherUsers.map(u => ({
+    return otherUsers.map((u: any) => ({
       userId: u._id,
       similarity: u.commonPlaces
     }));
@@ -223,7 +223,7 @@ export class RecommendationService {
         { $group: { _id: '$place.category' } }
       ]).toArray();
 
-    const categories1 = new Set(places1.map(p => p._id));
+    const categories1 = new Set(places1.map((p: any) => p._id));
 
     const places2 = await this.db.collection('location_history')
       .aggregate([
@@ -233,7 +233,7 @@ export class RecommendationService {
         { $group: { _id: '$place.category' } }
       ]).toArray();
 
-    const categories2 = new Set(places2.map(p => p._id));
+    const categories2 = new Set(places2.map((p: any) => p._id));
 
     // Calculate Jaccard similarity
     const intersection = new Set([...categories1].filter(x => categories2.has(x)));
@@ -258,6 +258,6 @@ export class RecommendationService {
       .find({ userId, locationSharingEnabled: true })
       .toArray();
 
-    return relations.map(r => r.friendId);
+    return relations.map((r: any) => r.friendId);
   }
 }

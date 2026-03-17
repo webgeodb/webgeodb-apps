@@ -10,8 +10,8 @@ import type {
   PaginatedResponse,
   QueryFilter
 } from './types';
-import type { WebGeoDB } from '@webgeodb/core';
-import type { Polygon, Point } from '@webgeodb/core';
+import type { WebGeoDB } from 'webgeodb-core';
+import type { Polygon, Point } from 'webgeodb-core';
 
 export class GeoFenceService {
   constructor(private db: WebGeoDB) {}

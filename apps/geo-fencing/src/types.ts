@@ -2,7 +2,7 @@
  * 地理围栏营销系统 - 类型定义
  */
 
-import type { Polygon, Point, Feature } from '@webgeodb/core';
+import type { Polygon, Point, Feature } from 'webgeodb-core';
 
 // ============================================
 // 核心实体

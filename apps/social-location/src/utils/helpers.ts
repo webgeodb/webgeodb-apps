@@ -1,4 +1,4 @@
-import { WebGeoDB } from '@webgeodb/core';
+import { WebGeoDB } from 'webgeodb-core';
 
 /**
  * Cache Service - Multi-level caching strategy

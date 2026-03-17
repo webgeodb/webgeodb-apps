@@ -1,4 +1,4 @@
-import { WebGeoDB } from '@webgeodb/core';
+import { WebGeoDB } from 'webgeodb-core';
 import { GeoPoint, PrivacyLevel, UserLocation, NearbyQueryOptions } from '../models/types';
 
 /**
@@ -176,8 +176,8 @@ export class LocationService {
       }
     }).toArray();
 
-    const resultMap = new Map(
-      results.map(r => [r.userId, r])
+    const resultMap: Map<string, any> = new Map(
+      results.map((r: any) => [r.userId, r])
     );
 
     if (this.cache) {

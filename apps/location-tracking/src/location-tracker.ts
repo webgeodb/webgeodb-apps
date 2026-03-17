@@ -4,7 +4,7 @@
  * 负责管理位置追踪、数据记录和轨迹计算
  */
 
-import { WebGeoDB } from '@webgeodb/core';
+import { WebGeoDB } from 'webgeodb-core';
 import * as turf from '@turf/turf';
 
 export interface LocationData {

@@ -16,7 +16,7 @@
  * - 现代浏览器支持Service Worker
  */
 
-import { WebGeoDB } from '@webgeodb/core';
+import { WebGeoDB } from 'webgeodb-core';
 import { OfflineMapManager } from './offline-map-manager';
 import { UIService } from './ui-service';
 

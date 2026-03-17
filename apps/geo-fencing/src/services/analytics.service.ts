@@ -10,8 +10,8 @@ import type {
   UserBehaviorAnalysis,
   CampaignMetrics
 } from './types';
-import type { WebGeoDB } from '@webgeodb/core';
-import type { Polygon } from '@webgeodb/core';
+import type { WebGeoDB } from 'webgeodb-core';
+import type { Polygon } from 'webgeodb-core';
 
 export class AnalyticsService {
   constructor(private db: WebGeoDB) {}

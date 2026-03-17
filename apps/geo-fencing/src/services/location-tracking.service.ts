@@ -11,7 +11,7 @@ import type {
   LocationCheckResponse,
   Point
 } from './types';
-import type { WebGeoDB } from '@webgeodb/core';
+import type { WebGeoDB } from 'webgeodb-core';
 
 interface UserFenceState {
   fenceId: string;

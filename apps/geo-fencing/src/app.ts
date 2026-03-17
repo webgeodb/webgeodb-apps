@@ -4,7 +4,7 @@
  * 集成所有服务，提供统一的API接口
  */
 
-import { WebGeoDB } from '@webgeodb/core';
+import { WebGeoDB } from 'webgeodb-core';
 import type { GeoFencingConfig } from './types';
 import { GeoFenceService } from './services/geo-fence.service';
 import { MarketingRuleEngine } from './services/marketing-rule-engine.service';

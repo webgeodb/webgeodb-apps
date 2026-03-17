@@ -18,7 +18,7 @@ export default defineConfig({
     rollupOptions: {
       output: {
         manualChunks: {
-          'webgeodb': ['@webgeodb/core'],
+          'webgeodb': ['webgeodb-core'],
           'leaflet': ['leaflet']
         }
       }

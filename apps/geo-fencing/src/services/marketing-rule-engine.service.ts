@@ -11,7 +11,7 @@ import type {
   RuleCondition,
   FenceEvent
 } from './types';
-import type { WebGeoDB } from '@webgeodb/core';
+import type { WebGeoDB } from 'webgeodb-core';
 
 export class MarketingRuleEngine {
   constructor(private db: WebGeoDB) {}
