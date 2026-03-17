@@ -1,366 +1,227 @@
-# 电商地理围栏营销系统
+# 地理围栏营销系统应用 (Geo-Fencing)
 
-> 基于 WebGeoDB 的实时位置营销平台，提供完整的围栏管理、规则配置和营销自动化功能。
+基于 WebGeoDB 的智能地理围栏营销系统，支持位置触发营销。
 
-## 📋 项目概述
+## ✨ 功能特性
 
-电商地理围栏营销系统是一个生产级的地理位置营销解决方案，帮助企业：
-
-- 🎯 **精准定位**: 基于用户位置触发个性化营销活动
-- 📊 **数据分析**: 实时追踪用户行为，生成热力图和统计报表
-- 🚀 **营销自动化**: 配置灵活的规则引擎，自动执行营销动作
-- 🗺️ **可视化**: 直观的地图界面，轻松管理地理围栏
-
-## ✨ 核心功能
-
-### 1. 地理围栏管理
-
-- ✅ 创建、编辑、删除多边形围栏
-- ✅ 支持多种围栏类型（商场、仓库、配送区等）
-- ✅ 围栏激活/停用控制
-- ✅ 地图可视化绘制和编辑
-
-### 2. 实时位置追踪
-
-- ✅ 检测用户进入/离开围栏事件
-- ✅ 计算停留时间
-- ✅ 支持多围栏同时检测
-- ✅ 用户轨迹记录和回放
-
-### 3. 营销规则引擎
-
-- ✅ 灵活的规则配置（进入/离开/停留触发）
-- ✅ 多种条件判断（时间、频率、用户分群等）
-- ✅ 优先级控制
-- ✅ 多渠道营销动作（推送、邮件、短信等）
-
-### 4. 数据分析
-
-- ✅ 围栏统计（用户数、事件数、停留时间）
-- ✅ 热力图生成
-- ✅ 用户行为分析
-- ✅ 营销效果评估
-
-## 🏗️ 技术架构
-
-```
-┌─────────────────────────────────────────┐
-│         UI Layer (HTML + Leaflet)       │
-├─────────────────────────────────────────┤
-│         Application Layer               │
-│  ┌──────────┬──────────┬──────────────┐ │
-│  │ GeoFence │  Rules   │   Tracking   │ │
-│  │ Service  │  Engine  │   Service    │ │
-│  └──────────┴──────────┴──────────────┘ │
-│  ┌──────────────────────────────────┐  │
-│  │      Analytics Service           │  │
-│  └──────────────────────────────────┘  │
-├─────────────────────────────────────────┤
-│         WebGeoDB (IndexedDB)            │
-├─────────────────────────────────────────┤
-│         Browser Storage                 │
-└─────────────────────────────────────────┘
-```
+- ✅ **围栏创建** - 创建圆形、多边形等多种形状的地理围栏
+- ✅ **实时监控** - 实时监控用户进入/离开围栏
+- ✅ **触发规则** - 设置进入/离开时的营销规则
+- ✅ **用户分析** - 分析用户在围栏内的行为
+- ✅ **营销统计** - 统计营销效果和转化率
+- ✅ **批量管理** - 支持批量创建和管理围栏
 
 ## 🚀 快速开始
 
 ### 安装依赖
 
 ```bash
-cd /Users/zhangyuting/github/zhyt1985/webgeodb/examples/projects/geo-fencing
-npm install
+pnpm install
 ```
 
-### 开发模式
+### 运行开发服务器
 
 ```bash
-npm run dev
+pnpm dev
 ```
 
-访问 http://localhost:3000 查看演示。
+应用将在 http://localhost:5173 启动
 
 ### 构建生产版本
 
 ```bash
-npm run build
+pnpm build
 ```
+
+### 预览生产构建
+
+```bash
+pnpm preview
+```
+
+## 📦 安装核心库
+
+```bash
+pnpm add webgeodb-core@beta
+```
+
+## 💻 技术栈
+
+- **WebGeoDB Core** - 空间数据库引擎
+- **Vite** - 构建工具
+- **TypeScript** - 类型安全
+- **Leaflet** - 地图渲染和绘制
 
 ## 📖 使用示例
 
-### 初始化应用
+### 初始化地理围栏系统
 
 ```typescript
-import { GeoFencingApp, DEFAULT_CONFIG } from './src/app';
+import { WebGeoDB } from 'webgeodb-core';
+import { GeoFenceService } from './services/geo-fence.service';
+import { MarketingRuleEngine } from './services/marketing-rule-engine.service';
 
-// 创建应用实例
-const app = new GeoFencingApp(DEFAULT_CONFIG);
+// 初始化数据库
+const db = new WebGeoDB('geo-fencing', {
+  stores: ['fences', 'users', 'events', 'rules']
+});
 
-// 初始化
-await app.init();
+// 创建围栏服务
+const fenceService = new GeoFenceService(db);
+
+// 创建营销规则引擎
+const ruleEngine = new MarketingRuleEngine(db);
 ```
 
 ### 创建地理围栏
 
 ```typescript
-// 创建商场围栏
-const fence = await app.fences.createFence({
-  name: '朝阳大悦城',
-  description: '北京朝阳区大型购物中心',
-  type: 'store',
-  geometry: {
-    type: 'Polygon',
-    coordinates: [[
-      [116.4830, 39.9210],
-      [116.4870, 39.9210],
-      [116.4870, 39.9250],
-      [116.4830, 39.9250],
-      [116.4830, 39.9210]
-    ]]
-  },
-  properties: {
-    address: '北京市朝阳区朝阳北路101号',
-    phone: '010-12345678'
+// 创建圆形围栏
+const circleFence = await fenceService.createFence({
+  name: 'Store A - 1km Radius',
+  type: 'circle',
+  center: [116.404, 39.915],  // [lng, lat]
+  radius: 1000,               // 1公里
+  metadata: {
+    storeId: 'store-a',
+    category: 'retail'
   }
 });
+
+// 创建多边形围栏
+const polygonFence = await fenceService.createFence({
+  name: 'Downtown District',
+  type: 'polygon',
+  coordinates: [
+    [116.400, 39.910],
+    [116.410, 39.910],
+    [116.410, 39.920],
+    [116.400, 39.920],
+    [116.400, 39.910]
+  ]
+});
 ```
 
-### 创建营销规则
+### 设置营销规则
 
 ```typescript
-// 创建进入围栏推送优惠券规则
-const rule = await app.rules.createRule({
-  name: '进店优惠券推送',
-  description: '用户进入商场时推送8折优惠券',
-  fenceId: 'fence-mall-001',
+// 创建进入围栏时的规则
+await ruleEngine.createRule({
+  name: 'Store A Welcome Offer',
+  fenceId: circleFence.id,
   trigger: 'enter',
-  action: {
-    type: 'push-notification',
-    content: {
-      title: '欢迎光临！',
-      message: '您有一张8折优惠券',
-      discountCode: 'MALL80OFF'
-    },
-    channel: 'mobile'
-  },
-  conditions: [
+  actions: [
     {
-      type: 'time',
-      operator: 'in',
-      value: [10, 11, 12, 14, 15, 16, 18, 19, 20]
+      type: 'notification',
+      title: '欢迎光临！',
+      body: '凭此通知享受 8 折优惠',
+      data: { discount: 20 }
+    },
+    {
+      type: 'coupon',
+      value: 'SAVE20',
+      expiry: 3600  // 1小时后过期
     }
-  ],
-  priority: 10
+  ]
 });
 ```
 
-### 处理位置更新
+### 监控用户位置
 
 ```typescript
-// 更新用户位置并检测围栏事件
-const result = await app.tracking.handleLocationUpdate({
-  userId: 'user-001',
-  location: {
-    type: 'Point',
-    coordinates: [116.4850, 39.9230]
-  },
-  timestamp: Date.now()
+import { LocationTrackingService } from './services/location-tracking.service';
+
+const trackingService = new LocationTrackingService(db, fenceService);
+
+// 开始监控
+trackingService.startMonitoring();
+
+// 监听围栏事件
+trackingService.on('enter', async (event) => {
+  console.log(`用户进入 ${event.fence.name}`);
+  
+  // 执行营销规则
+  await ruleEngine.execute(event.fence.id, event.userId);
 });
 
-console.log('在围栏内:', result.insideFences);
-console.log('触发动作:', result.triggeredActions);
+trackingService.on('exit', (event) => {
+  console.log(`用户离开 ${event.fence.name}`);
+});
 ```
 
-### 生成热力图
+## 🌐 在线演示
 
-```typescript
-// 生成指定区域的热力图数据
-const heatmapData = await app.analytics.generateHeatmap(
-  [116.38, 39.90, 116.49, 39.93], // bbox
-  0.005, // 网格大小
-  Date.now() - 86400000, // 开始时间
-  Date.now() // 结束时间
-);
+部署后可访问：https://webgeodb.github.io/webgeodb-apps/apps/geo-fencing/
 
-// 在地图上显示
-map.displayHeatmap(heatmapData);
-```
-
-## 📊 数据模型
-
-### GeoFence（地理围栏）
-
-```typescript
-interface GeoFence {
-  id: string;
-  name: string;
-  description?: string;
-  type: 'store' | 'warehouse' | 'delivery-zone' | 'custom';
-  geometry: Polygon;
-  properties: Record<string, any>;
-  active: boolean;
-  createdAt: number;
-  updatedAt: number;
-}
-```
-
-### MarketingRule（营销规则）
-
-```typescript
-interface MarketingRule {
-  id: string;
-  name: string;
-  fenceId: string;
-  trigger: 'enter' | 'exit' | 'dwell';
-  dwellTime?: number;
-  action: MarketingAction;
-  conditions: RuleCondition[];
-  priority: number;
-  active: boolean;
-}
-```
-
-### FenceEvent（围栏事件）
-
-```typescript
-interface FenceEvent {
-  id: string;
-  fenceId: string;
-  userId: string;
-  eventType: 'enter' | 'exit' | 'dwell';
-  timestamp: number;
-  location: Point;
-  triggeredRules: string[];
-}
-```
-
-## 🧪 测试
-
-```bash
-# 运行测试
-npm test
-
-# 测试覆盖率
-npm run coverage
-
-# UI测试模式
-npm run test:ui
-```
-
-## 📚 项目结构
+## 📂 项目结构
 
 ```
 geo-fencing/
-├── public/
-│   └── index.html          # 演示页面
 ├── src/
-│   ├── app.ts              # 主应用类
-│   ├── index.ts            # 入口文件和演示
-│   ├── types.ts            # TypeScript类型定义
+│   ├── app.ts                                    # 应用入口
 │   ├── components/
-│   │   └── map.ts          # Leaflet地图组件
-│   └── services/
-│       ├── geo-fence.service.ts
-│       ├── marketing-rule-engine.service.ts
-│       ├── location-tracking.service.ts
-│       └── analytics.service.ts
-├── package.json
-├── tsconfig.json
-├── vite.config.ts
-└── README.md
+│   │   └── map.ts                                # 地图组件
+│   ├── services/
+│   │   ├── geo-fence.service.ts                  # 围栏服务
+│   │   ├── location-tracking.service.ts          # 位置追踪服务
+│   │   ├── marketing-rule-engine.service.ts      # 营销规则引擎
+│   │   └── analytics.service.ts                  # 分析服务
+│   └── types.ts                                  # 类型定义
+├── index.html                                    # HTML 模板
+├── vite.config.ts                                # Vite 配置
+└── package.json                                  # 项目配置
 ```
 
-## 🎯 应用场景
+## 📊 围栏类型
 
-### 1. 零售商场
+- **圆形** (Circle) - 基于中心点和半径
+- **多边形** (Polygon) - 自定义边界
+- **矩形** (Rectangle) - 简化矩形区域
 
-- ✅ 用户进店推送优惠券
-- ✅ 停留时间分析与营销
-- ✅ 竞品门店围栏对比
+## 📈 营销指标
 
-### 2. 配送服务
+- **触达人数** - 进入围栏的唯一用户数
+- **转化率** - 触发营销后完成转化的比例
+- **停留时间** - 用户在围栏内的平均停留时间
+- **访问频次** - 用户进入围栏的次数
 
-- ✅ 配送区域自动检测
-- ✅ 离开服务区提醒
-- ✅ 配送费用动态计算
+## 📝 开发注意事项
 
-### 3. O2O平台
+1. **定位精度** 建议设置合理的围栏大小缓冲
+2. **电池优化** 避免过于频繁的位置更新
+3. **隐私合规** 确保用户授权位置追踪
 
-- ✅ 服务范围管理
-- ✅ 商家推荐（基于位置）
-- ✅ 用户行为分析
+## 🔧 配置说明
 
-### 4. 智慧营销
-
-- ✅ 位置定向广告
-- � 附近用户群发
-- ✅ 营销效果追踪
-
-## 🔧 配置选项
+### Vite 配置
 
 ```typescript
-interface GeoFencingConfig {
-  dbName: string;              // 数据库名称
-  dbVersion: number;           // 数据库版本
-  checkInterval: number;       // 位置检查间隔（毫秒）
-  maxDwellTime: number;        // 最大停留时间（毫秒）
-  enableRealtime: boolean;     // 启用实时追踪
-  enableHeatmap: boolean;      // 启用热力图
-  mapConfig: {
-    defaultCenter: [number, number];
-    defaultZoom: number;
-    minZoom: number;
-    maxZoom: number;
-  };
-}
-```
-
-## 📈 性能优化
-
-- ✅ 空间索引加速查询
-- ✅ 批量操作减少IO
-- ✅ 数据分页和限制
-- ✅ 定期清理过期数据
-
-## 🛠️ 开发指南
-
-### 添加新的规则条件类型
-
-在 `MarketingRuleEngine` 类中扩展 `checkCondition` 方法：
-
-```typescript
-private async checkCondition(
-  condition: RuleCondition,
-  event: FenceEvent
-): Promise<boolean> {
-  switch (condition.type) {
-    case 'your-custom-type':
-      return this.checkCustomCondition(condition, event);
-    // ...
+// vite.config.ts
+export default defineConfig({
+  base: '/webgeodb/apps/geo-fencing/',
+  build: {
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          'webgeodb': ['webgeodb-core'],
+          'leaflet': ['leaflet']
+        }
+      }
+    }
   }
-}
+});
 ```
-
-### 添加新的营销动作类型
-
-扩展 `MarketingAction` 类型并在规则引擎中处理。
-
-### 自定义地图样式
-
-修改 `GeoFenceMap` 类中的 `getFenceStyle` 方法。
-
-## 📝 许可证
-
-MIT License
 
 ## 🤝 贡献
 
 欢迎提交 Issue 和 Pull Request！
 
-## 📧 联系方式
+## 📄 许可证
 
-- 项目地址: https://github.com/zhyt1985/webgeodb
-- 文档: https://webgeodb.dev
+MIT
 
----
+## 🔗 相关链接
 
-**Built with ❤️ using WebGeoDB**
+- [WebGeoDB 核心库](https://github.com/webgeodb/webgeodb)
+- [WebGeoDB 文档](https://github.com/webgeodb/webgeodb/tree/main/docs)
+- [npm 包](https://www.npmjs.com/package/webgeodb-core)

@@ -1,80 +1,17 @@
-# 第4章 示例2: 实时位置追踪
+# 实时位置追踪应用 (Location Tracking)
 
-本示例展示了如何使用 WebGeoDB 和 Geolocation API 构建实时位置追踪应用。
+基于 WebGeoDB 的实时位置追踪应用，支持轨迹记录和回放。
 
-## 功能特性
+## ✨ 功能特性
 
-- ✅ **实时位置追踪** - 使用 Geolocation API 持续获取位置更新
-- ✅ **轨迹记录** - 自动记录移动轨迹到数据库
-- ✅ **距离计算** - 实时计算移动距离和速度
-- ✅ **地图可视化** - 在 Leaflet 地图上显示轨迹和当前位置
-- ✅ **历史轨迹** - 加载和显示历史追踪记录
-- ✅ **数据导出** - 导出轨迹数据为 GeoJSON 格式
+- ✅ **实时位置追踪** - 使用 Geolocation API 持续追踪用户位置
+- ✅ **轨迹记录** - 将位置数据保存到 IndexedDB
+- ✅ **轨迹回放** - 可视化回放历史轨迹
+- ✅ **统计分析** - 计算总距离、平均速度等
+- ✅ **地图可视化** - 在地图上实时显示位置和轨迹
+- ✅ **导出功能** - 支持 GPX、JSON 格式导出
 
-## 技术要点
-
-### 1. Geolocation API
-
-```typescript
-// 开始位置监听
-const watchId = navigator.geolocation.watchPosition(
-  (position) => handlePositionSuccess(position),
-  (error) => handlePositionError(error),
-  {
-    enableHighAccuracy: true,
-    timeout: 10000,
-    maximumAge: 0
-  }
-);
-
-// 停止监听
-navigator.geolocation.clearWatch(watchId);
-```
-
-### 2. 轨迹记录
-
-```typescript
-// 保存轨迹点
-await db.trackPoints.add({
-  id: pointId,
-  trackId: currentTrackId,
-  geometry: {
-    type: 'Point',
-    coordinates: [longitude, latitude]
-  },
-  timestamp: new Date(),
-  accuracy: position.coords.accuracy,
-  speed: position.coords.speed || 0,
-  heading: position.coords.heading || 0
-});
-```
-
-### 3. 距离计算
-
-```typescript
-import * as turf from '@turf/turf';
-
-// 计算两点间距离
-const from = turf.point([lon1, lat1]);
-const to = turf.point([lon2, lat2]);
-const distance = turf.distance(from, to, { units: 'kilometers' });
-```
-
-### 4. 地图可视化
-
-```typescript
-// 更新当前位置标记
-currentPositionMarker.setLatLng([lat, lng]);
-
-// 添加轨迹线
-const polyline = L.polyline(coordinates, {
-  color: '#4285f4',
-  weight: 4,
-  opacity: 0.8
-}).addTo(map);
-```
-
-## 运行方式
+## 🚀 快速开始
 
 ### 安装依赖
 
@@ -82,13 +19,13 @@ const polyline = L.polyline(coordinates, {
 pnpm install
 ```
 
-### 开发模式
+### 运行开发服务器
 
 ```bash
 pnpm dev
 ```
 
-应用将在 http://localhost:3002 启动
+应用将在 http://localhost:5173 启动
 
 ### 构建生产版本
 
@@ -96,121 +33,121 @@ pnpm dev
 pnpm build
 ```
 
-### 预览生产版本
+### 预览生产构建
 
 ```bash
 pnpm preview
 ```
 
-## 使用说明
+## 📦 安装核心库
 
-1. **开始追踪**
-   - 点击"开始"按钮
-   - 允许浏览器访问位置信息
-   - 应用开始记录位置
-
-2. **调整更新频率**
-   - 使用滑块调整位置更新频率（1-10秒）
-   - 频率越高越精确，但消耗更多电量
-
-3. **查看统计**
-   - 实时查看轨迹点数、总距离、持续时间
-   - 查看平均速度
-
-4. **导出数据**
-   - 点击"导出"按钮
-   - 下载 GeoJSON 格式的轨迹数据
-
-5. **清除数据**
-   - 点击"清除"按钮
-   - 删除所有轨迹记录
-
-## 文件结构
-
-```
-02-location-tracking/
-├── index.html              # HTML页面
-├── package.json            # 项目配置
-├── tsconfig.json           # TypeScript配置
-├── vite.config.ts          # Vite构建配置
-└── src/
-    ├── main.ts             # 主应用入口
-    ├── location-tracker.ts # 位置追踪器
-    ├── map-manager.ts      # 地图管理器
-    └── ui-service.ts       # UI服务类
+```bash
+pnpm add webgeodb-core@beta
 ```
 
-## 关键概念
+## 💻 技术栈
 
-### Geolocation API
+- **WebGeoDB Core** - 空间数据库引擎
+- **Vite** - 构建工具
+- **TypeScript** - 类型安全
+- **Leaflet** - 地图渲染
 
-- **watchPosition** - 持续监听位置变化
-- **getCurrentPosition** - 获取当前位置
-- **clearWatch** - 停止监听
+## 📖 使用示例
 
-### 位置数据结构
+### 初始化位置追踪器
 
 ```typescript
-interface GeolocationPosition {
-  coords: {
-    latitude: number;        // 纬度
-    longitude: number;       // 经度
-    accuracy: number;        // 精度（米）
-    altitude: number | null; // 海拔（米）
-    altitudeAccuracy: number | null; // 海拔精度
-    heading: number | null;  // 方向（度）
-    speed: number | null;    // 速度（米/秒）
-  };
-  timestamp: number;         // 时间戳
-}
+import { WebGeoDB } from 'webgeodb-core';
+import { LocationTracker } from './location-tracker';
+
+// 初始化数据库
+const db = new WebGeoDB('location-tracking', {
+  stores: ['tracks', 'waypoints']
+});
+
+// 创建位置追踪器
+const tracker = new LocationTracker(db, {
+  minAccuracy: 50,      // 最小精度（米）
+  updateInterval: 1000  // 更新间隔（毫秒）
+});
 ```
 
-### 距离计算
+### 开始追踪
 
-- 使用 Turf.js 计算地理距离
-- 支持 Haversine 公式计算球面距离
-- 单位可配置（公里、米、英里等）
+```typescript
+// 开始追踪
+await tracker.startTracking('morning-run');
 
-### 轨迹管理
+// 监听位置更新
+tracker.on('location', (location) => {
+  console.log(`纬度: ${location.latitude}, 经度: ${location.longitude}`);
+  console.log(`精度: ${location.accuracy}米`);
+  console.log(`速度: ${location.speed}m/s`);
+});
 
-- 轨迹记录包含元数据（名称、时间、距离）
-- 轨迹点包含位置、精度、速度等信息
-- 支持批量查询和导出
+// 停止追踪
+await tracker.stopTracking();
+```
 
-## 隐私和权限
+### 查询历史轨迹
 
-1. **位置权限**
-   - 首次使用需要用户授权
-   - 可以在浏览器设置中撤销权限
+```typescript
+// 查询所有轨迹
+const tracks = await db.tracks.toArray();
 
-2. **数据存储**
-   - 所有数据存储在本地浏览器
-   - 不会上传到服务器
+// 查询特定日期的轨迹
+const todayTracks = await db.tracks
+  .where('timestamp')
+  .above(today)
+  .toArray();
+```
 
-3. **精度控制**
-   - enableHighAccuracy 提供更高精度
-   - 但会消耗更多电量
+## 🌐 在线演示
 
-## 扩展建议
+部署后可访问：https://webgeodb.github.io/webgeodb-apps/apps/location-tracking/
 
-1. **增强功能**
-   - 添加轨迹回放功能
-   - 支持轨迹标注和照片
-   - 实现轨迹编辑和优化
+## 📂 项目结构
 
-2. **数据分析**
-   - 添加速度曲线图
-   - 计算海拔变化
-   - 生成运动报告
+```
+location-tracking/
+├── src/
+│   ├── main.ts                  # 应用入口
+│   ├── location-tracker.ts      # 位置追踪器
+│   ├── map-manager.ts           # 地图管理器
+│   └── ui-service.ts            # UI 服务
+├── index.html                   # HTML 模板
+├── vite.config.ts               # Vite 配置
+└── package.json                 # 项目配置
+```
 
-3. **社交功能**
-   - 分享轨迹到社交媒体
-   - 与朋友实时共享位置
-   - 创建和加入活动
+## 📝 开发注意事项
 
-## 相关文档
+1. **位置权限** 需要用户授权才能访问位置信息
+2. **电池消耗** 持续追踪会消耗较多电量
+3. **隐私保护** 位置数据仅存储在本地
 
-- [第4章教程](../../README.md#第4章-离线地图与位置追踪)
-- [Geolocation API](https://developer.mozilla.org/en-US/docs/Web/API/Geolocation_API)
-- [Turf.js 文档](https://turfjs.org/)
-- [Leaflet 文档](https://leafletjs.com/reference.html)
+## 🔧 配置说明
+
+### Vite 配置
+
+```typescript
+// vite.config.ts
+export default defineConfig({
+  base: '/webgeodb/apps/location-tracking/',
+  // ... 其他配置
+});
+```
+
+## 🤝 贡献
+
+欢迎提交 Issue 和 Pull Request！
+
+## 📄 许可证
+
+MIT
+
+## 🔗 相关链接
+
+- [WebGeoDB 核心库](https://github.com/webgeodb/webgeodb)
+- [WebGeoDB 文档](https://github.com/webgeodb/webgeodb/tree/main/docs)
+- [npm 包](https://www.npmjs.com/package/webgeodb-core)
