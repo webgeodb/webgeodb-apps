@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>WebGeoDB 教程 - 实时位置追踪</title>
+
+  <!-- Leaflet CSS -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+      overflow: hidden;
+    }
+
+    #map {
+      width: 100vw;
+      height: 100vh;
+    }
+
+    .control-panel {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      z-index: 1000;
+      background: white;
+      padding: 15px;
+      border-radius: 8px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+      max-width: 320px;
+    }
+
+    .control-panel h2 {
+      font-size: 18px;
+      margin-bottom: 10px;
+      color: #333;
+    }
+
+    .status-info {
+      padding: 10px;
+      background: #f8f9fa;
+      border-radius: 4px;
+      margin-bottom: 10px;
+      font-size: 13px;
+    }
+
+    .status-info-item {
+      display: flex;
+      justify-content: space-between;
+      margin: 5px 0;
+    }
+
+    .status-info-label {
+      color: #666;
+    }
+
+    .status-info-value {
+      font-weight: 600;
+      color: #333;
+    }
+
+    .button-group {
+      display: flex;
+      gap: 5px;
+      margin: 10px 0;
+    }
+
+    .button {
+      flex: 1;
+      padding: 10px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 13px;
+      transition: all 0.3s;
+    }
+
+    .button-primary {
+      background: #007bff;
+      color: white;
+    }
+
+    .button-primary:hover {
+      background: #0056b3;
+    }
+
+    .button-danger {
+      background: #dc3545;
+      color: white;
+    }
+
+    .button-danger:hover {
+      background: #c82333;
+    }
+
+    .button-secondary {
+      background: #6c757d;
+      color: white;
+    }
+
+    .button-secondary:hover {
+      background: #5a6268;
+    }
+
+    .button:disabled {
+      background: #ccc;
+      cursor: not-allowed;
+    }
+
+    .stats-panel {
+      margin-top: 10px;
+      padding: 10px;
+      background: #e7f3ff;
+      border-radius: 4px;
+      font-size: 12px;
+    }
+
+    .stats-item {
+      margin: 5px 0;
+      display: flex;
+      justify-content: space-between;
+    }
+
+    .tracking-indicator {
+      display: inline-block;
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: #28a745;
+      margin-right: 5px;
+      animation: pulse 2s infinite;
+    }
+
+    .tracking-indicator.stopped {
+      background: #dc3545;
+      animation: none;
+    }
+
+    @keyframes pulse {
+      0%, 100% {
+        opacity: 1;
+      }
+      50% {
+        opacity: 0.5;
+      }
+    }
+
+    .timeline {
+      margin-top: 10px;
+      max-height: 200px;
+      overflow-y: auto;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      padding: 5px;
+      font-size: 11px;
+    }
+
+    .timeline-item {
+      padding: 5px;
+      border-bottom: 1px solid #eee;
+    }
+
+    .timeline-item:last-child {
+      border-bottom: none;
+    }
+
+    .timeline-time {
+      color: #666;
+      font-size: 10px;
+    }
+
+    .timeline-coords {
+      color: #333;
+      font-weight: 500;
+    }
+
+    .slider-container {
+      margin: 10px 0;
+    }
+
+    .slider-label {
+      font-size: 12px;
+      margin-bottom: 5px;
+      display: flex;
+      justify-content: space-between;
+    }
+
+    input[type="range"] {
+      width: 100%;
+    }
+  </style>
+</head>
+<body>
+  <div id="map"></div>
+
+  <div class="control-panel">
+    <h2>
+      <span id="trackingIndicator" class="tracking-indicator stopped"></span>
+      实时位置追踪
+    </h2>
+
+    <div class="status-info">
+      <div class="status-info-item">
+        <span class="status-info-label">状态:</span>
+        <span class="status-info-value" id="trackingStatus">已停止</span>
+      </div>
+      <div class="status-info-item">
+        <span class="status-info-label">纬度:</span>
+        <span class="status-info-value" id="currentLat">--</span>
+      </div>
+      <div class="status-info-item">
+        <span class="status-info-label">经度:</span>
+        <span class="status-info-value" id="currentLng">--</span>
+      </div>
+      <div class="status-info-item">
+        <span class="status-info-label">精度:</span>
+        <span class="status-info-value" id="accuracy">--</span>
+      </div>
+    </div>
+
+    <div class="button-group">
+      <button id="startBtn" class="button button-primary">开始</button>
+      <button id="stopBtn" class="button button-danger" disabled>停止</button>
+    </div>
+
+    <div class="button-group">
+      <button id="clearBtn" class="button button-secondary">清除</button>
+      <button id="exportBtn" class="button button-secondary">导出</button>
+    </div>
+
+    <div class="slider-container">
+      <div class="slider-label">
+        <span>更新频率</span>
+        <span id="intervalValue">1秒</span>
+      </div>
+      <input type="range" id="intervalSlider" min="1" max="10" value="1">
+    </div>
+
+    <div class="stats-panel">
+      <div class="stats-item">
+        <span>轨迹点数:</span>
+        <span id="pointCount">0</span>
+      </div>
+      <div class="stats-item">
+        <span>总距离:</span>
+        <span id="totalDistance">0 m</span>
+      </div>
+      <div class="stats-item">
+        <span>持续时间:</span>
+        <span id="duration">0:00:00</span>
+      </div>
+      <div class="stats-item">
+        <span>平均速度:</span>
+        <span id="avgSpeed">0 km/h</span>
+      </div>
+    </div>
+
+    <div class="timeline" id="timeline">
+      <div style="text-align: center; color: #999; padding: 20px;">
+        暂无轨迹记录
+      </div>
+    </div>
+  </div>
+
+  <!-- Leaflet JS -->
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+  <script type="module" src="/src/main.ts"></script>
+</body>
+</html>

@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>WebGeoDB 教程 - 离线地图应用</title>
+
+  <!-- Leaflet CSS -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+      overflow: hidden;
+    }
+
+    #map {
+      width: 100vw;
+      height: 100vh;
+    }
+
+    .control-panel {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      z-index: 1000;
+      background: white;
+      padding: 15px;
+      border-radius: 8px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+      max-width: 300px;
+    }
+
+    .control-panel h2 {
+      font-size: 18px;
+      margin-bottom: 10px;
+      color: #333;
+    }
+
+    .status {
+      padding: 8px;
+      border-radius: 4px;
+      margin-bottom: 10px;
+      font-size: 14px;
+    }
+
+    .status.online {
+      background: #d4edda;
+      color: #155724;
+    }
+
+    .status.offline {
+      background: #f8d7da;
+      color: #721c24;
+    }
+
+    .button {
+      width: 100%;
+      padding: 10px;
+      margin: 5px 0;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 14px;
+      transition: all 0.3s;
+    }
+
+    .button-primary {
+      background: #007bff;
+      color: white;
+    }
+
+    .button-primary:hover {
+      background: #0056b3;
+    }
+
+    .button-success {
+      background: #28a745;
+      color: white;
+    }
+
+    .button-success:hover {
+      background: #218838;
+    }
+
+    .button:disabled {
+      background: #ccc;
+      cursor: not-allowed;
+    }
+
+    .stats {
+      margin-top: 10px;
+      padding: 10px;
+      background: #f8f9fa;
+      border-radius: 4px;
+      font-size: 12px;
+    }
+
+    .stats-item {
+      margin: 5px 0;
+      display: flex;
+      justify-content: space-between;
+    }
+
+    .progress-bar {
+      width: 100%;
+      height: 20px;
+      background: #e9ecef;
+      border-radius: 10px;
+      overflow: hidden;
+      margin: 10px 0;
+    }
+
+    .progress-fill {
+      height: 100%;
+      background: #007bff;
+      transition: width 0.3s;
+    }
+
+    .loading-text {
+      text-align: center;
+      font-size: 12px;
+      color: #666;
+      margin-top: 5px;
+    }
+
+    .leaflet-container {
+      background: #f8f9fa;
+    }
+  </style>
+</head>
+<body>
+  <div id="map"></div>
+
+  <div class="control-panel">
+    <h2>📍 离线地图应用</h2>
+
+    <div id="status" class="status online">
+      状态: 在线
+    </div>
+
+    <button id="downloadBtn" class="button button-primary">
+      📥 下载当前区域
+    </button>
+
+    <button id="syncBtn" class="button button-success" disabled>
+      🔄 同步到服务器
+    </button>
+
+    <div id="progressContainer" style="display: none;">
+      <div class="progress-bar">
+        <div id="progressFill" class="progress-fill" style="width: 0%"></div>
+      </div>
+      <div id="loadingText" class="loading-text">准备中...</div>
+    </div>
+
+    <div class="stats">
+      <div class="stats-item">
+        <span>离线要素:</span>
+        <span id="featureCount">0</span>
+      </div>
+      <div class="stats-item">
+        <span>数据大小:</span>
+        <span id="dataSize">0 KB</span>
+      </div>
+      <div class="stats-item">
+        <span>最后同步:</span>
+        <span id="lastSync">从未</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Leaflet JS -->
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+  <script type="module" src="/src/main.ts"></script>
+</body>
+</html>

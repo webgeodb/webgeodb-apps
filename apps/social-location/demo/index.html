@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>社交位置分享 - Social Location Sharing</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 40px;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        .features {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 40px;
+        }
+
+        .feature-card {
+            background: white;
+            border-radius: 12px;
+            padding: 24px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            transition: transform 0.2s;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-4px);
+        }
+
+        .feature-icon {
+            font-size: 2.5rem;
+            margin-bottom: 16px;
+        }
+
+        .feature-card h3 {
+            color: #333;
+            margin-bottom: 12px;
+            font-size: 1.3rem;
+        }
+
+        .feature-card p {
+            color: #666;
+            line-height: 1.6;
+        }
+
+        .demo-section {
+            background: white;
+            border-radius: 12px;
+            padding: 32px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .demo-section h2 {
+            color: #333;
+            margin-bottom: 24px;
+            font-size: 1.8rem;
+        }
+
+        .demo-tabs {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 24px;
+            border-bottom: 2px solid #e5e7eb;
+        }
+
+        .tab-button {
+            padding: 12px 24px;
+            background: none;
+            border: none;
+            border-bottom: 2px solid transparent;
+            cursor: pointer;
+            font-size: 1rem;
+            color: #666;
+            transition: all 0.2s;
+        }
+
+        .tab-button:hover {
+            color: #667eea;
+        }
+
+        .tab-button.active {
+            color: #667eea;
+            border-bottom-color: #667eea;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .code-block {
+            background: #1e293b;
+            color: #e2e8f0;
+            padding: 20px;
+            border-radius: 8px;
+            overflow-x: auto;
+            font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+            font-size: 0.9rem;
+            line-height: 1.6;
+        }
+
+        .code-block .comment {
+            color: #64748b;
+        }
+
+        .code-block .keyword {
+            color: #c792ea;
+        }
+
+        .code-block .string {
+            color: #c3e88d;
+        }
+
+        .code-block .function {
+            color: #82aaff;
+        }
+
+        .tech-stack {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-top: 20px;
+        }
+
+        .tech-badge {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+
+        .highlight-box {
+            background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+            border-left: 4px solid #f59e0b;
+            padding: 16px;
+            border-radius: 8px;
+            margin: 20px 0;
+        }
+
+        .highlight-box strong {
+            color: #92400e;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin: 24px 0;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 2.5rem;
+            font-weight: bold;
+            margin-bottom: 8px;
+        }
+
+        .stat-label {
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+
+        .footer {
+            text-align: center;
+            color: white;
+            margin-top: 40px;
+            padding: 20px;
+            opacity: 0.8;
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 1.8rem;
+            }
+
+            .features {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🌍 社交位置分享应用</h1>
+            <p>基于 WebGeoDB 的隐私保护地理位置社交平台</p>
+        </div>
+
+        <div class="features">
+            <div class="feature-card">
+                <div class="feature-icon">🔒</div>
+                <h3>隐私保护</h3>
+                <p>多级位置隐私控制，自动模糊化精确位置，保护敏感区域</p>
+            </div>
+
+            <div class="feature-card">
+                <div class="feature-icon">⚡</div>
+                <h3>高性能</h3>
+                <p>支持大规模并发查询，多级缓存策略，实时位置更新</p>
+            </div>
+
+            <div class="feature-card">
+                <div class="feature-icon">🤖</div>
+                <h3>智能推荐</h3>
+                <p>基于协同过滤的位置推荐，发现附近的好友和地点</p>
+            </div>
+
+            <div class="feature-card">
+                <div class="feature-icon">📍</div>
+                <h3>地点管理</h3>
+                <p>创建和分享自定义地点，评价和评论，探索热门地点</p>
+            </div>
+        </div>
+
+        <div class="demo-section">
+            <h2>📊 核心功能演示</h2>
+
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-number">99.9%</div>
+                    <div class="stat-label">可用性</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">&lt;100ms</div>
+                    <div class="stat-label">查询响应</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">10K+</div>
+                    <div class="stat-label">并发用户</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">4级</div>
+                    <div class="stat-label">隐私保护</div>
+                </div>
+            </div>
+
+            <div class="demo-tabs">
+                <button class="tab-button active" onclick="switchTab(event, 'location')">位置更新</button>
+                <button class="tab-button" onclick="switchTab(event, 'privacy')">隐私设置</button>
+                <button class="tab-button" onclick="switchTab(event, 'recommend')">智能推荐</button>
+                <button class="tab-button" onclick="switchTab(event, 'places')">地点搜索</button>
+            </div>
+
+            <div id="location" class="tab-content active">
+                <h3>📍 更新用户位置</h3>
+                <div class="code-block">
+<span class="comment">// 更新用户位置并设置隐私级别</span>
+<span class="keyword">await</span> locationService.updateLocation(<span class="string">'user1'</span>, {
+  latitude: <span class="string">39.9042</span>,
+  longitude: <span class="string">116.4074</span>
+}, {
+  accuracy: <span class="string">10</span>,
+  privacyLevel: <span class="string">'neighborhood'</span>  <span class="comment">// 街区级别</span>
+});
+
+<span class="comment">// 查询附近用户</span>
+<span class="keyword">const</span> nearby = <span class="keyword">await</span> locationService.findNearbyUsers(
+  { latitude: <span class="string">39.9042</span>, longitude: <span class="string">116.4074</span> },
+  <span class="string">5000</span>,  <span class="comment">// 5km 半径</span>
+  { limit: <span class="string">20</span> }
+);
+                </div>
+            </div>
+
+            <div id="privacy" class="tab-content">
+                <h3>🔒 隐私保护设置</h3>
+                <div class="code-block">
+<span class="comment">// 设置隐私级别</span>
+<span class="keyword">await</span> privacyService.setPrivacyLevel(<span class="string">'user1'</span>, {
+  level: <span class="string">'city'</span>,  <span class="comment">// 城市级别</span>
+  precision: <span class="string">3000</span>,  <span class="comment">// 3km 精度</span>
+  exceptions: [<span class="string">'friend1'</span>, <span class="string">'friend2'</span>]  <span class="comment">// 例外好友</span>
+});
+
+<span class="comment">// 设置隐私区域（如家、公司）</span>
+<span class="keyword">await</span> privacyService.setPrivacyZones(<span class="string">'user1'</span>, [{
+  name: <span class="string">'家'</span>,
+  location: { lat: <span class="string">39.9042</span>, lng: <span class="string">116.4074</span> },
+  radius: <span class="string">200</span>,  <span class="comment">// 200米</span>
+  privacyLevel: <span class="string">'region'</span>  <span class="comment">// 区域级别</span>
+}]);
+                </div>
+            </div>
+
+            <div id="recommend" class="tab-content">
+                <h3>🤖 智能推荐</h3>
+                <div class="code-block">
+<span class="comment">// 基于位置推荐地点</span>
+<span class="keyword">const</span> recommendations = <span class="keyword">await</span> recommendationService.recommendPlaces({
+  userId: <span class="string">'user1'</span>,
+  location: { latitude: <span class="string">39.9042</span>, longitude: <span class="string">116.4074</span> },
+  limit: <span class="string">10</span>
+});
+
+<span class="comment">// 推荐附近好友</span>
+<span class="keyword">const</span> friends = <span class="keyword">await</span> recommendationService.recommendFriends(
+  <span class="string">'user1'</span>,
+  { latitude: <span class="string">39.9042</span>, longitude: <span class="string">116.4074</span> },
+  <span class="string">5</span>
+);
+
+<span class="comment">// 更新用户偏好</span>
+<span class="keyword">await</span> recommendationService.updateUserPreferences(<span class="string">'user1'</span>, {
+  categories: [<span class="string">'restaurant'</span>, <span class="string">'cafe'</span>, <span class="string">'park'</span>],
+  favoritePlaces: [<span class="string">'place1'</span>, <span class="string">'place2'</span>]
+});
+                </div>
+            </div>
+
+            <div id="places" class="tab-content">
+                <h3>🏛️ 地点搜索</h3>
+                <div class="code-block">
+<span class="comment">// 创建新地点</span>
+<span class="keyword">const</span> place = <span class="keyword">await</span> placeService.createPlace({
+  name: <span class="string">'故宫博物院'</span>,
+  location: { latitude: <span class="string">39.9163</span>, longitude: <span class="string">116.3971</span> },
+  category: <span class="string">'museum'</span>,
+  rating: <span class="string">4.8</span>,
+  description: <span class="string">'中国明清两代的皇家宫殿'</span>,
+  createdBy: <span class="string">'user1'</span>
+});
+
+<span class="comment">// 搜索附近地点</span>
+<span class="keyword">const</span> nearby = <span class="keyword">await</span> placeService.searchNearby(
+  { latitude: <span class="string">39.9042</span>, longitude: <span class="string">116.4074</span> },
+  <span class="string">5000</span>,
+  {
+    limit: <span class="string">10</span>,
+    categories: [<span class="string">'museum'</span>],
+    minRating: <span class="string">4.0</span>
+  }
+);
+                </div>
+            </div>
+
+            <div class="highlight-box">
+                <strong>💡 技术亮点：</strong>
+                <ul style="margin-top: 10px; margin-left: 20px;">
+                    <li>位置隐私保护：支持精确、街区、城市、区域四级隐私控制</li>
+                    <li>高并发优化：多级缓存、批量查询、连接池管理</li>
+                    <li>智能推荐：协同过滤、内容推荐、个性化算法</li>
+                    <li>实时更新：WebSocket 推送、位置历史管理</li>
+                </ul>
+            </div>
+
+            <h3 style="margin-top: 32px;">🛠️ 技术栈</h3>
+            <div class="tech-stack">
+                <span class="tech-badge">WebGeoDB</span>
+                <span class="tech-badge">TypeScript</span>
+                <span class="tech-badge">Redis</span>
+                <span class="tech-badge">WebSocket</span>
+                <span class="tech-badge">Express</span>
+                <span class="tech-badge">Jest</span>
+            </div>
+        </div>
+
+        <div class="footer">
+            <p>© 2024 WebGeoDB - 构建下一代地理空间应用</p>
+            <p style="margin-top: 10px;">
+                <a href="https://github.com/webgeodb/webgeodb" style="color: white;">GitHub</a> •
+                <a href="/docs" style="color: white;">文档</a> •
+                <a href="/examples" style="color: white;">示例</a>
+            </p>
+        </div>
+    </div>
+
+    <script>
+        function switchTab(event, tabId) {
+            // Remove active class from all buttons
+            const buttons = document.querySelectorAll('.tab-button');
+            buttons.forEach(btn => btn.classList.remove('active'));
+
+            // Hide all tab contents
+            const contents = document.querySelectorAll('.tab-content');
+            contents.forEach(content => content.classList.remove('active'));
+
+            // Add active class to clicked button
+            event.currentTarget.classList.add('active');
+
+            // Show selected tab content
+            document.getElementById(tabId).classList.add('active');
+        }
+    </script>
+</body>
+</html>

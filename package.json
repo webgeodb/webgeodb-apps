@@ -1,0 +1,19 @@
+{
+  "name": "@webgeodb/apps",
+  "version": "1.0.0",
+  "private": true,
+  "description": "WebGeoDB 完整应用集合",
+  "scripts": {
+    "dev": "turbo run dev",
+    "build": "turbo run build",
+    "test": "turbo run test",
+    "preview": "turbo run preview"
+  },
+  "devDependencies": {
+    "turbo": "^2.0.0"
+  },
+  "engines": {
+    "node": ">=18.0.0",
+    "pnpm": ">=9.0.0"
+  }
+}

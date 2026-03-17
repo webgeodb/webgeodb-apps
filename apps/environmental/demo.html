@@ -1,0 +1,774 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>环境监测数据平台 | WebGeoDB</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      padding: 20px;
+    }
+
+    .container {
+      max-width: 1400px;
+      margin: 0 auto;
+      background: white;
+      border-radius: 20px;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+      overflow: hidden;
+    }
+
+    .header {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 30px 40px;
+      text-align: center;
+    }
+
+    .header h1 {
+      font-size: 32px;
+      margin-bottom: 10px;
+    }
+
+    .header p {
+      font-size: 16px;
+      opacity: 0.9;
+    }
+
+    .main-content {
+      display: grid;
+      grid-template-columns: 1fr 350px;
+      gap: 20px;
+      padding: 30px 40px;
+    }
+
+    .visualization {
+      background: #f8f9fa;
+      border-radius: 12px;
+      padding: 20px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    .visualization h2 {
+      font-size: 20px;
+      margin-bottom: 15px;
+      color: #333;
+    }
+
+    .canvas-container {
+      position: relative;
+      background: #000;
+      border-radius: 8px;
+      overflow: hidden;
+      aspect-ratio: 4/3;
+    }
+
+    canvas {
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+
+    .controls {
+      background: #f8f9fa;
+      border-radius: 12px;
+      padding: 20px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    .controls h2 {
+      font-size: 20px;
+      margin-bottom: 20px;
+      color: #333;
+    }
+
+    .control-group {
+      margin-bottom: 20px;
+    }
+
+    .control-group label {
+      display: block;
+      font-size: 14px;
+      font-weight: 600;
+      margin-bottom: 8px;
+      color: #555;
+    }
+
+    .control-group select,
+    .control-group input[type="range"],
+    .control-group input[type="number"] {
+      width: 100%;
+      padding: 10px;
+      border: 2px solid #e0e0e0;
+      border-radius: 6px;
+      font-size: 14px;
+      transition: border-color 0.3s;
+    }
+
+    .control-group select:focus,
+    .control-group input:focus {
+      outline: none;
+      border-color: #667eea;
+    }
+
+    .btn {
+      width: 100%;
+      padding: 12px;
+      border: none;
+      border-radius: 6px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s;
+      margin-bottom: 10px;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+    }
+
+    .btn-secondary {
+      background: #6c757d;
+      color: white;
+    }
+
+    .btn-secondary:hover {
+      background: #5a6268;
+    }
+
+    .btn-success {
+      background: #28a745;
+      color: white;
+    }
+
+    .btn-success:hover {
+      background: #218838;
+    }
+
+    .stats {
+      background: #f8f9fa;
+      border-radius: 12px;
+      padding: 20px;
+      margin-top: 20px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    .stats h3 {
+      font-size: 18px;
+      margin-bottom: 15px;
+      color: #333;
+    }
+
+    .stat-item {
+      display: flex;
+      justify-content: space-between;
+      padding: 10px 0;
+      border-bottom: 1px solid #e0e0e0;
+    }
+
+    .stat-item:last-child {
+      border-bottom: none;
+    }
+
+    .stat-label {
+      font-size: 14px;
+      color: #666;
+    }
+
+    .stat-value {
+      font-size: 14px;
+      font-weight: 600;
+      color: #333;
+    }
+
+    .legend {
+      position: absolute;
+      bottom: 20px;
+      right: 20px;
+      background: rgba(255, 255, 255, 0.95);
+      padding: 15px;
+      border-radius: 8px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    }
+
+    .legend-title {
+      font-size: 14px;
+      font-weight: 600;
+      margin-bottom: 10px;
+      color: #333;
+    }
+
+    .legend-item {
+      display: flex;
+      align-items: center;
+      margin-bottom: 8px;
+    }
+
+    .legend-color {
+      width: 30px;
+      height: 15px;
+      border-radius: 3px;
+      margin-right: 10px;
+    }
+
+    .legend-label {
+      font-size: 12px;
+      color: #555;
+    }
+
+    .tooltip {
+      position: absolute;
+      background: rgba(0, 0, 0, 0.8);
+      color: white;
+      padding: 8px 12px;
+      border-radius: 6px;
+      font-size: 12px;
+      pointer-events: none;
+      display: none;
+      z-index: 1000;
+    }
+
+    .loading {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      color: white;
+      font-size: 16px;
+      font-weight: 600;
+    }
+
+    @media (max-width: 1024px) {
+      .main-content {
+        grid-template-columns: 1fr;
+      }
+
+      .controls {
+        order: 2;
+      }
+    }
+
+    .value-badge {
+      display: inline-block;
+      padding: 4px 8px;
+      border-radius: 4px;
+      font-size: 12px;
+      font-weight: 600;
+    }
+
+    .value-good {
+      background: #00e400;
+      color: #000;
+    }
+
+    .value-fair {
+      background: #ffff00;
+      color: #000;
+    }
+
+    .value-poor {
+      background: #ff0000;
+      color: #fff;
+    }
+
+    .animation-controls {
+      display: none;
+      margin-top: 15px;
+    }
+
+    .animation-controls.active {
+      display: block;
+    }
+
+    .time-slider {
+      width: 100%;
+      margin-top: 10px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>环境监测数据平台</h1>
+      <p>Environmental Monitoring Data Platform | WebGeoDB</p>
+    </div>
+
+    <div class="main-content">
+      <div class="visualization">
+        <h2>PM2.5 空气质量分布</h2>
+        <div class="canvas-container">
+          <canvas id="heatmapCanvas"></canvas>
+          <div class="legend" id="legend">
+            <div class="legend-title">AQI 指数</div>
+            <div class="legend-item">
+              <div class="legend-color" style="background: #00e400;"></div>
+              <div class="legend-label">优 (0-50)</div>
+            </div>
+            <div class="legend-item">
+              <div class="legend-color" style="background: #ffff00;"></div>
+              <div class="legend-label">良 (51-100)</div>
+            </div>
+            <div class="legend-item">
+              <div class="legend-color" style="background: #ff7e00;"></div>
+              <div class="legend-label">轻度 (101-150)</div>
+            </div>
+            <div class="legend-item">
+              <div class="legend-color" style="background: #ff0000;"></div>
+              <div class="legend-label">中度 (151-200)</div>
+            </div>
+            <div class="legend-item">
+              <div class="legend-color" style="background: #99004c;"></div>
+              <div class="legend-label">重度 (201-300)</div>
+            </div>
+            <div class="legend-item">
+              <div class="legend-color" style="background: #7e0023;"></div>
+              <div class="legend-label">严重 (>300)</div>
+            </div>
+          </div>
+          <div class="tooltip" id="tooltip"></div>
+          <div class="loading" id="loading">初始化中...</div>
+        </div>
+
+        <div class="animation-controls" id="animationControls">
+          <h3 style="margin-bottom: 10px; font-size: 16px; color: #333;">时间序列动画</h3>
+          <input type="range" class="time-slider" id="timeSlider" min="0" max="100" value="0">
+          <div style="display: flex; justify-content: space-between; margin-top: 5px;">
+            <span id="startTimeLabel" style="font-size: 12px; color: #666;"></span>
+            <span id="endTimeLabel" style="font-size: 12px; color: #666;"></span>
+          </div>
+        </div>
+      </div>
+
+      <div class="controls">
+        <h2>控制面板</h2>
+
+        <div class="control-group">
+          <label>监测指标</label>
+          <select id="metricSelect">
+            <option value="pm25">PM2.5</option>
+            <option value="pm10">PM10</option>
+            <option value="aqi">AQI 指数</option>
+          </select>
+        </div>
+
+        <div class="control-group">
+          <label>插值方法</label>
+          <select id="interpolationSelect">
+            <option value="idw">IDW (反距离权重)</option>
+            <option value="kriging">Kriging (克里金)</option>
+          </select>
+        </div>
+
+        <div class="control-group">
+          <label>插值幂参数: <span id="powerValue">2</span></label>
+          <input type="range" id="powerSlider" min="0.5" max="5" step="0.5" value="2">
+        </div>
+
+        <div class="control-group">
+          <label>网格分辨率: <span id="resolutionValue">0.001</span></label>
+          <input type="range" id="resolutionSlider" min="0.0005" max="0.005" step="0.0005" value="0.001">
+        </div>
+
+        <div class="control-group">
+          <label>等值线</label>
+          <select id="contourSelect">
+            <option value="none">无等值线</option>
+            <option value="aqi">AQI 等级线</option>
+            <option value="custom">自定义</option>
+          </select>
+        </div>
+
+        <button class="btn btn-primary" id="generateBtn">生成分布图</button>
+        <button class="btn btn-success" id="animateBtn">播放动画</button>
+        <button class="btn btn-secondary" id="exportBtn">导出数据</button>
+
+        <div class="stats">
+          <h3>实时统计</h3>
+          <div class="stat-item">
+            <span class="stat-label">监测站点</span>
+            <span class="stat-value" id="stationCount">0</span>
+          </div>
+          <div class="stat-item">
+            <span class="stat-label">平均 PM2.5</span>
+            <span class="stat-value" id="avgPM25">0 μg/m³</span>
+          </div>
+          <div class="stat-item">
+            <span class="stat-label">最高 AQI</span>
+            <span class="stat-value" id="maxAQI">0</span>
+          </div>
+          <div class="stat-item">
+            <span class="stat-label">最低 AQI</span>
+            <span class="stat-value" id="minAQI">0</span>
+          </div>
+          <div class="stat-item">
+            <span class="stat-label">数据时间</span>
+            <span class="stat-value" id="dataTime">--</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script type="module">
+    // 模拟 WebGeoDB 和相关类的实现
+    // 实际应用中应从 @webgeodb/core 导入
+
+    class MockWebGeoDB {
+      constructor(options) {
+        this.options = options;
+        this.stores = new Map();
+      }
+
+      async insert(store, data) {
+        if (!this.stores.has(store)) {
+          this.stores.set(store, []);
+        }
+        this.stores.get(store).push(data);
+      }
+
+      async search(store, query) {
+        const data = this.stores.get(store) || [];
+        // 简化的查询实现
+        return data.filter(item => {
+          if (query.where?.status && item.status !== query.where.status) return false;
+          return true;
+        });
+      }
+    }
+
+    // 简化的环境监测器
+    class EnvironmentalMonitor {
+      constructor() {
+        this.db = new MockWebGeoDB({
+          name: 'environmental-monitor',
+          enableSpatialIndex: true,
+          enableTimeIndex: true
+        });
+        this.stations = [];
+        this.data = [];
+      }
+
+      async addStation(station) {
+        await this.db.insert('stations', station);
+        this.stations.push(station);
+      }
+
+      async saveMonitoringData(data) {
+        await this.db.insert('monitoring_data', data);
+        this.data.push(data);
+      }
+
+      async getActiveStations() {
+        return this.stations.filter(s => s.status === 'active');
+      }
+
+      async getLatestData(bounds) {
+        return this.data.slice(-10);
+      }
+    }
+
+    // IDW 插值器
+    class IDWInterpolator {
+      interpolate(points, targetPoint, power = 2) {
+        let numerator = 0;
+        let denominator = 0;
+
+        for (const point of points) {
+          const distance = Math.sqrt(
+            Math.pow(targetPoint.x - point.x, 2) +
+            Math.pow(targetPoint.y - point.y, 2)
+          );
+
+          if (distance === 0) return point.value;
+
+          const weight = 1 / Math.pow(distance, power);
+          numerator += weight * point.value;
+          denominator += weight;
+        }
+
+        return denominator === 0 ? 0 : numerator / denominator;
+      }
+
+      generateGrid(points, bounds, resolution, power = 2) {
+        const rows = Math.ceil((bounds.north - bounds.south) / resolution);
+        const cols = Math.ceil((bounds.east - bounds.west) / resolution);
+        const grid = [];
+
+        for (let i = 0; i < rows; i++) {
+          grid[i] = [];
+          for (let j = 0; j < cols; j++) {
+            const x = bounds.west + j * resolution;
+            const y = bounds.south + i * resolution;
+            grid[i][j] = this.interpolate(points, { x, y }, power);
+          }
+        }
+
+        return { timestamp: Date.now(), grid: { bounds, resolution, values: grid } };
+      }
+    }
+
+    // 热力图可视化器
+    class HeatmapVisualizer {
+      constructor(canvas) {
+        this.canvas = canvas;
+        this.ctx = canvas.getContext('2d');
+      }
+
+      renderHeatmap(grid, bounds, colorScale) {
+        const { width, height } = this.canvas;
+        const rows = grid.length;
+        const cols = grid[0].length;
+        const cellWidth = width / cols;
+        const cellHeight = height / rows;
+
+        this.ctx.clearRect(0, 0, width, height);
+
+        for (let i = 0; i < rows; i++) {
+          for (let j = 0; j < cols; j++) {
+            const value = grid[i][j];
+            this.ctx.fillStyle = colorScale(value);
+            this.ctx.fillRect(
+              j * cellWidth,
+              i * cellHeight,
+              cellWidth + 1,
+              cellHeight + 1
+            );
+          }
+        }
+      }
+
+      drawStations(data, bounds) {
+        const { width, height } = this.canvas;
+
+        for (const d of data) {
+          const x = ((d.location.longitude - bounds.west) / (bounds.east - bounds.west)) * width;
+          const y = ((bounds.north - d.location.latitude) / (bounds.north - bounds.south)) * height;
+
+          this.ctx.fillStyle = '#fff';
+          this.ctx.beginPath();
+          this.ctx.arc(x, y, 6, 0, Math.PI * 2);
+          this.ctx.fill();
+
+          this.ctx.strokeStyle = '#000';
+          this.ctx.lineWidth = 2;
+          this.ctx.stroke();
+
+          const value = d.measurements.pm25 || 0;
+          this.ctx.fillStyle = '#fff';
+          this.ctx.font = '12px sans-serif';
+          this.ctx.fillText(value.toFixed(1), x + 10, y);
+        }
+      }
+
+      static createColorScale(min, max, colors) {
+        return (value) => {
+          const t = Math.max(0, Math.min(1, (value - min) / (max - min)));
+
+          if (t <= 0.17) return '#00e400';
+          if (t <= 0.33) return '#ffff00';
+          if (t <= 0.5) return '#ff7e00';
+          if (t <= 0.67) return '#ff0000';
+          if (t <= 0.83) return '#99004c';
+          return '#7e0023';
+        };
+      }
+    }
+
+    // 主应用
+    class EnvironmentalApp {
+      constructor() {
+        this.canvas = document.getElementById('heatmapCanvas');
+        this.monitor = new EnvironmentalMonitor();
+        this.interpolator = new IDWInterpolator();
+        this.visualizer = new HeatmapVisualizer(this.canvas);
+
+        this.bounds = {
+          west: 116.35,
+          south: 39.88,
+          east: 116.45,
+          north: 39.93
+        };
+
+        this.init();
+      }
+
+      async init() {
+        // 设置画布尺寸
+        this.canvas.width = this.canvas.offsetWidth;
+        this.canvas.height = this.canvas.offsetHeight;
+
+        // 初始化监测站点
+        await this.initializeStations();
+
+        // 生成模拟数据
+        await this.generateMockData();
+
+        // 绑定事件
+        this.bindEvents();
+
+        // 生成初始分布图
+        await this.generateDistribution();
+
+        // 隐藏加载提示
+        document.getElementById('loading').style.display = 'none';
+      }
+
+      async initializeStations() {
+        const stations = [
+          { id: 'station-001', name: '市中心监测站', location: { latitude: 39.9042, longitude: 116.4074 }, stationType: 'air', status: 'active', metadata: { installationDate: '2023-01-01', operator: '市环保局', region: '市中心' } },
+          { id: 'station-002', name: '工业园区监测站', location: { latitude: 39.9142, longitude: 116.4374 }, stationType: 'air', status: 'active', metadata: { installationDate: '2023-01-01', operator: '市环保局', region: '工业园' } },
+          { id: 'station-003', name: '居民区监测站', location: { latitude: 39.8942, longitude: 116.3874 }, stationType: 'air', status: 'active', metadata: { installationDate: '2023-01-01', operator: '市环保局', region: '居民区' } },
+          { id: 'station-004', name: '郊区监测站', location: { latitude: 39.9242, longitude: 116.4674 }, stationType: 'air', status: 'active', metadata: { installationDate: '2023-01-01', operator: '市环保局', region: '郊区' } },
+          { id: 'station-005', name: '商业区监测站', location: { latitude: 39.8992, longitude: 116.4274 }, stationType: 'air', status: 'active', metadata: { installationDate: '2023-01-01', operator: '市环保局', region: '商业区' } }
+        ];
+
+        for (const station of stations) {
+          await this.monitor.addStation(station);
+        }
+
+        document.getElementById('stationCount').textContent = stations.length;
+      }
+
+      async generateMockData() {
+        const stations = await this.monitor.getActiveStations();
+        const timestamp = Date.now();
+
+        for (const station of stations) {
+          const pm25 = 20 + Math.random() * 150;
+          const pm10 = pm25 * (1.2 + Math.random() * 0.5);
+          const aqi = this.calculateAQI(pm25);
+
+          await this.monitor.saveMonitoringData({
+            stationId: station.id,
+            timestamp,
+            location: station.location,
+            measurements: {
+              pm25: Math.round(pm25 * 10) / 10,
+              pm10: Math.round(pm10 * 10) / 10,
+              aqi: Math.round(aqi)
+            },
+            quality: this.getAirQualityLevel(aqi)
+          });
+        }
+
+        // 更新统计信息
+        this.updateStats();
+      }
+
+      calculateAQI(pm25) {
+        if (pm25 <= 35) return (pm25 / 35) * 50;
+        if (pm25 <= 75) return 50 + ((pm25 - 35) / 40) * 50;
+        if (pm25 <= 115) return 100 + ((pm25 - 75) / 40) * 50;
+        if (pm25 <= 150) return 150 + ((pm25 - 115) / 35) * 50;
+        if (pm25 <= 250) return 200 + ((pm25 - 150) / 100) * 100;
+        return 300 + ((pm25 - 250) / 100) * 200;
+      }
+
+      getAirQualityLevel(aqi) {
+        if (aqi <= 100) return 'good';
+        if (aqi <= 150) return 'fair';
+        return 'poor';
+      }
+
+      updateStats() {
+        const data = this.monitor.data;
+        if (data.length === 0) return;
+
+        const pm25Values = data.map(d => d.measurements.pm25);
+        const aqiValues = data.map(d => d.measurements.aqi);
+
+        const avgPM25 = pm25Values.reduce((a, b) => a + b, 0) / pm25Values.length;
+        const maxAQI = Math.max(...aqiValues);
+        const minAQI = Math.min(...aqiValues);
+
+        document.getElementById('avgPM25').textContent = `${avgPM25.toFixed(1)} μg/m³`;
+        document.getElementById('maxAQI').textContent = Math.round(maxAQI);
+        document.getElementById('minAQI').textContent = Math.round(minAQI);
+        document.getElementById('dataTime').textContent = new Date().toLocaleTimeString();
+      }
+
+      async generateDistribution() {
+        const latestData = await this.monitor.getLatestData(this.bounds);
+        const points = latestData.map(d => ({
+          x: d.location.longitude,
+          y: d.location.latitude,
+          value: d.measurements.pm25 || 0
+        }));
+
+        const power = parseFloat(document.getElementById('powerSlider').value);
+        const resolution = parseFloat(document.getElementById('resolutionSlider').value);
+
+        const grid = this.interpolator.generateGrid(points, this.bounds, resolution, power);
+
+        const colorScale = HeatmapVisualizer.createColorScale(0, 300, []);
+
+        this.visualizer.renderHeatmap(grid.grid.values, this.bounds, colorScale);
+        this.visualizer.drawStations(latestData, this.bounds);
+      }
+
+      bindEvents() {
+        document.getElementById('generateBtn').addEventListener('click', () => {
+          this.generateDistribution();
+        });
+
+        document.getElementById('powerSlider').addEventListener('input', (e) => {
+          document.getElementById('powerValue').textContent = e.target.value;
+        });
+
+        document.getElementById('resolutionSlider').addEventListener('input', (e) => {
+          document.getElementById('resolutionValue').textContent = e.target.value;
+        });
+
+        document.getElementById('animateBtn').addEventListener('click', () => {
+          alert('动画功能需要完整的时间序列数据');
+        });
+
+        document.getElementById('exportBtn').addEventListener('click', () => {
+          alert('数据导出功能需要后端支持');
+        });
+
+        // 鼠标悬停显示数值
+        this.canvas.addEventListener('mousemove', (e) => {
+          const rect = this.canvas.getBoundingClientRect();
+          const x = e.clientX - rect.left;
+          const y = e.clientY - rect.top;
+
+          // 简化的位置到地理坐标转换
+          const lon = this.bounds.west + (x / this.canvas.width) * (this.bounds.east - this.bounds.west);
+          const lat = this.bounds.north - (y / this.canvas.height) * (this.bounds.north - this.bounds.south);
+
+          const tooltip = document.getElementById('tooltip');
+          tooltip.style.left = `${e.clientX + 10}px`;
+          tooltip.style.top = `${e.clientY + 10}px`;
+          tooltip.innerHTML = `位置: ${lat.toFixed(4)}, ${lon.toFixed(4)}<br>点击查看详细数据`;
+          tooltip.style.display = 'block';
+        });
+
+        this.canvas.addEventListener('mouseout', () => {
+          document.getElementById('tooltip').style.display = 'none';
+        });
+      }
+    }
+
+    // 启动应用
+    window.addEventListener('DOMContentLoaded', () => {
+      new EnvironmentalApp();
+    });
+  </script>
+</body>
+</html>

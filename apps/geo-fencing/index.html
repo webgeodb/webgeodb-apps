@@ -1,0 +1,571 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>电商地理围栏营销系统 - WebGeoDB</title>
+
+  <!-- Leaflet CSS -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB',
+        'Microsoft YaHei', sans-serif;
+      overflow: hidden;
+    }
+
+    #app {
+      display: flex;
+      height: 100vh;
+    }
+
+    /* 侧边栏 */
+    .sidebar {
+      width: 350px;
+      background: #ffffff;
+      border-right: 1px solid #e0e0e0;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .sidebar-header {
+      padding: 20px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+    }
+
+    .sidebar-header h1 {
+      font-size: 18px;
+      font-weight: 600;
+      margin-bottom: 8px;
+    }
+
+    .sidebar-header p {
+      font-size: 12px;
+      opacity: 0.9;
+    }
+
+    .sidebar-content {
+      flex: 1;
+      overflow-y: auto;
+      padding: 20px;
+    }
+
+    /* 统计卡片 */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+
+    .stat-card {
+      background: #f8f9fa;
+      border-radius: 8px;
+      padding: 12px;
+      text-align: center;
+    }
+
+    .stat-value {
+      font-size: 24px;
+      font-weight: 600;
+      color: #667eea;
+      margin-bottom: 4px;
+    }
+
+    .stat-label {
+      font-size: 12px;
+      color: #6c757d;
+    }
+
+    /* 围栏列表 */
+    .section-title {
+      font-size: 14px;
+      font-weight: 600;
+      color: #212529;
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .fence-list {
+      margin-bottom: 24px;
+    }
+
+    .fence-item {
+      background: #ffffff;
+      border: 1px solid #e0e0e0;
+      border-radius: 8px;
+      padding: 12px;
+      margin-bottom: 8px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .fence-item:hover {
+      border-color: #667eea;
+      box-shadow: 0 2px 8px rgba(102, 126, 234, 0.1);
+    }
+
+    .fence-name {
+      font-size: 14px;
+      font-weight: 500;
+      color: #212529;
+      margin-bottom: 4px;
+    }
+
+    .fence-info {
+      font-size: 12px;
+      color: #6c757d;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .fence-badge {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 12px;
+      font-size: 10px;
+      font-weight: 500;
+    }
+
+    .fence-badge.active {
+      background: #d4edda;
+      color: #155724;
+    }
+
+    .fence-badge.inactive {
+      background: #f8d7da;
+      color: #721c24;
+    }
+
+    .fence-type {
+      background: #e7f3ff;
+      color: #004085;
+    }
+
+    /* 按钮 */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      padding: 8px 16px;
+      border: none;
+      border-radius: 6px;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .btn-primary {
+      background: #667eea;
+      color: white;
+    }
+
+    .btn-primary:hover {
+      background: #5568d3;
+    }
+
+    .btn-secondary {
+      background: #e9ecef;
+      color: #495057;
+    }
+
+    .btn-secondary:hover {
+      background: #dee2e6;
+    }
+
+    .btn-sm {
+      padding: 4px 10px;
+      font-size: 12px;
+    }
+
+    /* 控制按钮 */
+    .controls {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 20px;
+    }
+
+    /* 日志 */
+    .log-section {
+      background: #f8f9fa;
+      border-radius: 8px;
+      padding: 12px;
+      max-height: 200px;
+      overflow-y: auto;
+    }
+
+    .log-item {
+      font-size: 11px;
+      color: #495057;
+      padding: 4px 0;
+      border-bottom: 1px solid #e9ecef;
+    }
+
+    .log-item:last-child {
+      border-bottom: none;
+    }
+
+    .log-time {
+      color: #6c757d;
+      margin-right: 8px;
+    }
+
+    /* 地图容器 */
+    .map-container {
+      flex: 1;
+      position: relative;
+    }
+
+    #map {
+      width: 100%;
+      height: 100%;
+    }
+
+    /* 地图控制 */
+    .map-controls {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      z-index: 1000;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .map-btn {
+      background: white;
+      border: 1px solid #e0e0e0;
+      border-radius: 6px;
+      padding: 8px 12px;
+      font-size: 12px;
+      cursor: pointer;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      transition: all 0.2s;
+    }
+
+    .map-btn:hover {
+      background: #f8f9fa;
+      border-color: #667eea;
+    }
+
+    .map-btn.active {
+      background: #667eea;
+      color: white;
+      border-color: #667eea;
+    }
+
+    /* 弹出窗口样式 */
+    .fence-popup {
+      min-width: 200px;
+    }
+
+    .fence-popup h3 {
+      font-size: 14px;
+      font-weight: 600;
+      margin-bottom: 8px;
+      color: #212529;
+    }
+
+    .fence-popup p {
+      font-size: 12px;
+      color: #6c757d;
+      margin-bottom: 4px;
+    }
+
+    .fence-popup strong {
+      color: #495057;
+    }
+
+    /* 加载动画 */
+    .loading {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      text-align: center;
+    }
+
+    .spinner {
+      border: 3px solid #f3f3f3;
+      border-top: 3px solid #667eea;
+      border-radius: 50%;
+      width: 40px;
+      height: 40px;
+      animation: spin 1s linear infinite;
+      margin: 0 auto 12px;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    .loading-text {
+      font-size: 14px;
+      color: #6c757d;
+    }
+  </style>
+</head>
+<body>
+  <div id="app">
+    <!-- 侧边栏 -->
+    <div class="sidebar">
+      <div class="sidebar-header">
+        <h1>🛍️ 电商地理围栏营销系统</h1>
+        <p>基于 WebGeoDB 的实时位置营销平台</p>
+      </div>
+
+      <div class="sidebar-content">
+        <!-- 统计卡片 -->
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-value" id="totalFences">0</div>
+            <div class="stat-label">围栏总数</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-value" id="activeRules">0</div>
+            <div class="stat-label">激活规则</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-value" id="totalEvents">0</div>
+            <div class="stat-label">事件总数</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-value" id="uniqueUsers">0</div>
+            <div class="stat-label">独立用户</div>
+          </div>
+        </div>
+
+        <!-- 控制按钮 -->
+        <div class="controls">
+          <button class="btn btn-primary btn-sm" id="btnStartDemo">
+            ▶️ 启动演示
+          </button>
+          <button class="btn btn-secondary btn-sm" id="btnClearData">
+            🗑️ 清除数据
+          </button>
+        </div>
+
+        <!-- 围栏列表 -->
+        <div class="section-title">
+          <span>📍 地理围栏</span>
+          <button class="btn btn-secondary btn-sm" id="btnRefreshFences">刷新</button>
+        </div>
+        <div class="fence-list" id="fenceList">
+          <p style="font-size: 12px; color: #6c757d; text-align: center; padding: 20px;">
+            点击"启动演示"开始
+          </p>
+        </div>
+
+        <!-- 日志 -->
+        <div class="section-title">
+          <span>📋 活动日志</span>
+        </div>
+        <div class="log-section" id="logSection">
+          <div class="log-item">
+            <span class="log-time">--:--:--</span>
+            等待启动...
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 地图容器 -->
+    <div class="map-container">
+      <div id="map"></div>
+
+      <!-- 地图控制按钮 -->
+      <div class="map-controls">
+        <button class="map-btn" id="btnFitAll">🗺️ 显示全部</button>
+        <button class="map-btn" id="btnToggleHeatmap">🔥 热力图</button>
+        <button class="map-btn" id="btnToggleEdit">✏️ 绘制围栏</button>
+      </div>
+
+      <!-- 加载提示 -->
+      <div class="loading" id="loading">
+        <div class="spinner"></div>
+        <div class="loading-text">正在初始化...</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Leaflet JS -->
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+  <!-- Leaflet.heat 插件 -->
+  <script src="https://unpkg.com/leaflet.heat@0.2.0/dist/leaflet-heat.js"></script>
+
+  <script type="module">
+    import { GeoFencingDemo } from './src/index.ts';
+
+    let demo = null;
+    let map = null;
+    let heatmapVisible = false;
+    let editMode = false;
+
+    // DOM元素
+    const loading = document.getElementById('loading');
+    const btnStartDemo = document.getElementById('btnStartDemo');
+    const btnClearData = document.getElementById('btnClearData');
+    const btnRefreshFences = document.getElementById('btnRefreshFences');
+    const btnFitAll = document.getElementById('btnFitAll');
+    const btnToggleHeatmap = document.getElementById('btnToggleHeatmap');
+    const btnToggleEdit = document.getElementById('btnToggleEdit');
+    const fenceList = document.getElementById('fenceList');
+    const logSection = document.getElementById('logSection');
+
+    // 添加日志
+    function addLog(message) {
+      const now = new Date();
+      const time = now.toLocaleTimeString('zh-CN');
+      const logItem = document.createElement('div');
+      logItem.className = 'log-item';
+      logItem.innerHTML = `<span class="log-time">${time}</span>${message}`;
+      logSection.insertBefore(logItem, logSection.firstChild);
+    }
+
+    // 更新统计
+    function updateStats(stats) {
+      document.getElementById('totalFences').textContent = stats.totalFences;
+      document.getElementById('activeRules').textContent = stats.activeRules;
+      document.getElementById('totalEvents').textContent = stats.totalEvents;
+      document.getElementById('uniqueUsers').textContent = stats.totalUsers;
+    }
+
+    // 渲染围栏列表
+    function renderFenceList(fences) {
+      if (fences.length === 0) {
+        fenceList.innerHTML = '<p style="font-size: 12px; color: #6c757d; text-align: center; padding: 20px;">暂无围栏</p>';
+        return;
+      }
+
+      fenceList.innerHTML = fences.map(fence => `
+        <div class="fence-item" data-fence-id="${fence.id}">
+          <div class="fence-name">${fence.name}</div>
+          <div class="fence-info">
+            <span class="fence-type fence-badge">${fence.type}</span>
+            <span class="fence-badge ${fence.active ? 'active' : 'inactive'}">
+              ${fence.active ? '激活' : '未激活'}
+            </span>
+          </div>
+        </div>
+      `).join('');
+
+      // 添加点击事件
+      fenceList.querySelectorAll('.fence-item').forEach(item => {
+        item.addEventListener('click', () => {
+          const fenceId = item.dataset.fenceId;
+          addLog(`选中围栏: ${fenceId}`);
+        });
+      });
+    }
+
+    // 启动演示
+    btnStartDemo.addEventListener('click', async () => {
+      loading.style.display = 'block';
+      addLog('正在初始化系统...');
+
+      try {
+        demo = new GeoFencingDemo();
+        await demo.init();
+
+        // 获取地图实例
+        map = demo.map.getMap();
+
+        // 更新UI
+        const stats = await demo.app.getSystemStats();
+        updateStats(stats);
+
+        const fences = await demo.app.fences.getAllFences();
+        renderFenceList(fences);
+
+        addLog('✅ 系统初始化完成');
+        addLog(`创建了 ${fences.length} 个示例围栏`);
+        addLog('模拟位置更新和热力图生成');
+
+      } catch (error) {
+        addLog(`❌ 错误: ${error.message}`);
+        console.error(error);
+      } finally {
+        loading.style.display = 'none';
+      }
+    });
+
+    // 清除数据
+    btnClearData.addEventListener('click', async () => {
+      if (demo) {
+        await demo.app.clearAll();
+        addLog('🗑️ 已清除所有数据');
+        updateStats({
+          totalFences: 0,
+          activeFences: 0,
+          totalRules: 0,
+          activeRules: 0,
+          totalUsers: 0,
+          totalEvents: 0,
+          totalCampaigns: 0
+        });
+        renderFenceList([]);
+      }
+    });
+
+    // 刷新围栏列表
+    btnRefreshFences.addEventListener('click', async () => {
+      if (demo) {
+        const fences = await demo.app.fences.getAllFences();
+        renderFenceList(fences);
+        addLog('🔄 围栏列表已刷新');
+      }
+    });
+
+    // 显示全部围栏
+    btnFitAll.addEventListener('click', () => {
+      if (map) {
+        map.fitBounds(demo.map.fenceLayer.getBounds(), { padding: [50, 50] });
+        addLog('🗺️ 显示所有围栏');
+      }
+    });
+
+    // 切换热力图
+    btnToggleHeatmap.addEventListener('click', async () => {
+      heatmapVisible = !heatmapVisible;
+      btnToggleHeatmap.classList.toggle('active', heatmapVisible);
+
+      if (heatmapVisible && demo) {
+        const bbox = [116.38, 39.90, 116.49, 39.93];
+        const heatmapData = await demo.app.analytics.generateHeatmap(bbox, 0.005);
+        demo.map.displayHeatmap(heatmapData);
+        addLog('🔥 显示热力图');
+      } else if (demo) {
+        demo.map.clearHeatmap();
+        addLog('🔥 隐藏热力图');
+      }
+    });
+
+    // 切换编辑模式
+    btnToggleEdit.addEventListener('click', () => {
+      editMode = !editMode;
+      btnToggleEdit.classList.toggle('active', editMode);
+
+      if (demo) {
+        demo.map.toggleEditMode(editMode);
+        addLog(editMode ? '✏️ 进入绘制模式（双击完成）' : '✏️ 退出绘制模式');
+      }
+    });
+  </script>
+</body>
+</html>
