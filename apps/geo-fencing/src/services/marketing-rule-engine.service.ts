@@ -10,7 +10,7 @@ import type {
   MarketingAction,
   RuleCondition,
   FenceEvent
-} from './types';
+} from '../types';
 import type { WebGeoDB } from 'webgeodb-core';
 
 export class MarketingRuleEngine {

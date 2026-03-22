@@ -150,48 +150,48 @@ export class GeoFencingApp {
     });
 
     // 创建索引
-    this.createIndexes();
+    await this.createIndexes();
   }
 
   /**
    * 创建索引
    */
-  private createIndexes(): void {
+  private async createIndexes(): Promise<void> {
     // 围栏表索引
-    this.db.fences.createIndex('active');
-    this.db.fences.createIndex('type');
-    this.db.fences.createIndex('geometry', { auto: true });
+    await this.db.fences.createIndex('active');
+    await this.db.fences.createIndex('type');
+    await this.db.fences.createIndex('geometry');
 
     // 规则表索引
-    this.db.rules.createIndex('fenceId');
-    this.db.rules.createIndex('active');
-    this.db.rules.createIndex('priority');
+    await this.db.rules.createIndex('fenceId');
+    await this.db.rules.createIndex('active');
+    await this.db.rules.createIndex('priority');
 
     // 用户位置表索引
-    this.db.userLocations.createIndex('userId');
-    this.db.userLocations.createIndex('timestamp');
-    this.db.userLocations.createIndex('geometry', { auto: true });
+    await this.db.userLocations.createIndex('userId');
+    await this.db.userLocations.createIndex('timestamp');
+    await this.db.userLocations.createIndex('geometry');
 
     // 围栏事件表索引
-    this.db.fenceEvents.createIndex('fenceId');
-    this.db.fenceEvents.createIndex('userId');
-    this.db.fenceEvents.createIndex('eventType');
-    this.db.fenceEvents.createIndex('timestamp');
+    await this.db.fenceEvents.createIndex('fenceId');
+    await this.db.fenceEvents.createIndex('userId');
+    await this.db.fenceEvents.createIndex('eventType');
+    await this.db.fenceEvents.createIndex('timestamp');
 
     // 用户表索引
-    this.db.users.createIndex('email');
-    this.db.users.createIndex('segment');
+    await this.db.users.createIndex('email');
+    await this.db.users.createIndex('segment');
 
     // 营销活动表索引
-    this.db.campaigns.createIndex('status');
-    this.db.campaigns.createIndex('startTime');
-    this.db.campaigns.createIndex('endTime');
+    await this.db.campaigns.createIndex('status');
+    await this.db.campaigns.createIndex('startTime');
+    await this.db.campaigns.createIndex('endTime');
 
     // 用户交互表索引
-    this.db.userInteractions.createIndex('campaignId');
-    this.db.userInteractions.createIndex('userId');
-    this.db.userInteractions.createIndex('action');
-    this.db.userInteractions.createIndex('timestamp');
+    await this.db.userInteractions.createIndex('campaignId');
+    await this.db.userInteractions.createIndex('userId');
+    await this.db.userInteractions.createIndex('action');
+    await this.db.userInteractions.createIndex('timestamp');
   }
 
   /**

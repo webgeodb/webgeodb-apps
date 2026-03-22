@@ -100,9 +100,9 @@ class LocationTrackingApp {
     await this.db.open();
 
     // 创建索引
-    this.db.tracks.createIndex('startTime');
-    this.db.trackPoints.createIndex('trackId');
-    this.db.trackPoints.createIndex('timestamp');
+    await this.db.tracks.createIndex('startTime');
+    await this.db.trackPoints.createIndex('trackId');
+    await this.db.trackPoints.createIndex('timestamp');
 
     console.log('✅ 数据库初始化完成');
   }

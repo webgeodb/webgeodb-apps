@@ -9,7 +9,7 @@ import type {
   CreateFenceRequest,
   PaginatedResponse,
   QueryFilter
-} from './types';
+} from '../types';
 import type { WebGeoDB } from 'webgeodb-core';
 import type { Polygon, Point } from 'webgeodb-core';
 

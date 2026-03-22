@@ -10,7 +10,7 @@ import type {
   LocationCheckRequest,
   LocationCheckResponse,
   Point
-} from './types';
+} from '../types';
 import type { WebGeoDB } from 'webgeodb-core';
 
 interface UserFenceState {

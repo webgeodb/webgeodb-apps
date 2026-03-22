@@ -9,7 +9,7 @@ import type {
   FenceStatistics,
   UserBehaviorAnalysis,
   CampaignMetrics
-} from './types';
+} from '../types';
 import type { WebGeoDB } from 'webgeodb-core';
 import type { Polygon } from 'webgeodb-core';
 

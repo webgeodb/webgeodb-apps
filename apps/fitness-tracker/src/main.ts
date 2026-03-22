@@ -131,9 +131,9 @@ class FitnessTrackerApp {
     await this.db.open();
 
     // 创建索引
-    this.db.workouts.createIndex('startTime');
-    this.db.trackPoints.createIndex('workoutId');
-    this.db.waypoints.createIndex('workoutId');
+    await this.db.workouts.createIndex('startTime');
+    await this.db.trackPoints.createIndex('workoutId');
+    await this.db.waypoints.createIndex('workoutId');
 
     console.log('✅ 数据库初始化完成');
   }

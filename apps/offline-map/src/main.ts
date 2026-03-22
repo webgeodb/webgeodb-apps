@@ -97,8 +97,8 @@ class OfflineMapApp {
     await this.db.open();
 
     // 创建索引
-    this.db.features.createIndex('geometry', { auto: true });
-    this.db.tiles.createIndex('url', { unique: true });
+    await this.db.features.createIndex('geometry');
+    await this.db.tiles.createIndex('url');
 
     console.log('✅ 数据库初始化完成');
   }
