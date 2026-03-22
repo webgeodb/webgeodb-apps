@@ -5,7 +5,7 @@
  */
 
 import L from 'leaflet';
-import type { GeoFence, MapOptions } from './types';
+import type { GeoFence, MapOptions } from '../types';
 
 // 修复Leaflet默认图标问题
 import 'leaflet/dist/leaflet.css';

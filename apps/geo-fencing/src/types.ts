@@ -3,6 +3,7 @@
  */
 
 import type { Polygon, Point, Feature } from 'webgeodb-core';
+export type { Point };
 
 // ============================================
 // 核心实体

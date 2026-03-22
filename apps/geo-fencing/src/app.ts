@@ -47,7 +47,7 @@ export class GeoFencingApp {
     await this.db.open();
 
     // 定义表结构
-    this.setupSchema();
+    await this.setupSchema();
 
     console.log('✅ 系统初始化完成');
   }
@@ -55,7 +55,7 @@ export class GeoFencingApp {
   /**
    * 设置数据库表结构
    */
-  private setupSchema(): void {
+  private async setupSchema(): Promise<void> {
     this.db.schema({
       // 地理围栏表
       fences: {
